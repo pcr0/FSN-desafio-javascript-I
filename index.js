@@ -17,15 +17,62 @@ const rl = readline.createInterface({input: process.stdin, output: process.stdou
 
 
 function adicionarAluno(nome){
+    alunosDaEscola.push({
+        nome: nome,
+        notas:[],
+        cursos:[],
+        faltas:0
+    })
     console.log(`Aluno ${nome} adicionado.`)
 }
 
 function listarAlunos(){
-    console.log('..... vários alunos.....')
+    let i = 0
+    console.log('')
+    alunosDaEscola.forEach( function(e) {
+        console.log(`Aluno ${(i + 1)}`)
+        buscarAluno(e.nome)
+        console.log('')
+        i++
+    })
 }
 
 function buscarAluno(nome){
-    console.log(`Aluno ${nome} retornado.`)
+    let pos = alunosDaEscola.map(function(e) { return e.nome; }).indexOf(nome)
+    console.log('')
+    if (pos != -1){
+        console.log(`Nome: ${alunosDaEscola[pos].nome}`)
+        let i = 1
+        if (alunosDaEscola[pos].notas.length > 0) {
+            for (let nota in alunosDaEscola[pos].notas) {
+                console.log(`Nota ${i}: ${alunosDaEscola[pos].notas[nota]}`)
+                i++
+            }
+        }
+        else
+        {
+            console.log(`Aluno sem notas cadastradas.`)
+        }       
+        i = 1 
+        if (alunosDaEscola[pos].cursos.length > 0 ) {
+            for (let curso in alunosDaEscola[pos].cursos) {
+                console.log(`Curso ${i}:`)
+                console.log(`Nome: ${alunosDaEscola[pos].cursos[curso].nomeDoCurso}`)
+                console.log(`Data de matrícula: ${alunosDaEscola[pos].cursos[curso].dataMatricula}`)
+                i++
+            } 
+        }       
+        else 
+        {
+            console.log(`Aluno não inscrito em cursos.`)
+        }
+        console.log(`Número de faltas: ${alunosDaEscola[pos].faltas}`)
+    }
+    else
+    {
+        console.log(`Nome não cadastrado.`)
+    }
+    console.log('')
 }
 
 function matricularAluno(aluno, curso){
@@ -33,9 +80,16 @@ function matricularAluno(aluno, curso){
 
 }
 
-function aplicarFalta(aluno){
-    console.log(`retorna falta aplicada.`)
-
+function aplicarFalta(nome){ // tentar com objeto aluno
+    let pos = alunosDaEscola.map(function(e) { return e.nome; }).indexOf(nome)
+    if (pos != -1){
+        alunosDaEscola[pos].faltas++
+        console.log(`Falta aplicada ao aluno ${alunosDaEscola[pos].nome}. Total de faltas: ${alunosDaEscola[pos].faltas}`)
+    }
+    else
+    {
+        console.log(`Nome não cadastrado.`)
+    }
 }
     
 function aplicarNota(aluno){
@@ -79,7 +133,7 @@ rl.question('Função a avaliar: ', (userInput) => {
             })
             break
         case '2':
-            rl.setPrompt('Opção Listar alunos selecionada. Segue nossa turma:')
+            console.log('Opção Listar alunos selecionada. Segue nossa turma:')
             listarAlunos(userInput)
             rl.close()
             break
@@ -87,6 +141,7 @@ rl.question('Função a avaliar: ', (userInput) => {
             rl.setPrompt('Opção Buscar um aluno selecionada. Digite o nome do aluno: ')
             rl.prompt()
             rl.on('line', userInput => {
+                console.log('Retorno das informações do aluno:')
                 buscarAluno(userInput)
                 rl.close()
             })
@@ -97,10 +152,13 @@ rl.question('Função a avaliar: ', (userInput) => {
             rl.close()
             break
         case '5':
-            rl.setPrompt('Opção Aplicar Falta a um aluno selecionada.')
-            aplicarFalta(userInput)
-            rl.close()
-                break
+            rl.setPrompt('Opção Aplicar Falta a um aluno selecionada. Digite o nome do aluno: ')
+            rl.prompt()
+            rl.on('line', userInput => {
+                aplicarFalta(userInput)
+                rl.close()
+            })
+            break
         case '6':
             rl.setPrompt('Opção Aplicar Nota a um aluno selecionada. Digite o nome do aluno: ')
             aplicarNota(userInput)
