@@ -1,7 +1,7 @@
 // Base a ser utilizada
 const alunosDaEscola=[{nome:"Henrique",notas:[],cursos:[],faltas:5},
 {nome:"Edson",notas:[],cursos:[],faltas:2},
-{nome:"Bruno",notas:[10,9.8,9.6],cursos:[],faltas:0},
+{nome:"Bruno",notas:[10,9.8,9.6],cursos:[],faltas:6},
 {nome:"Guilherme",notas:[10,9.8,9.6],cursos:[{nomeDoCurso:"Full Stack",dataMatricula:new Date}],faltas:0},
 {nome:"Carlos",notas:[],cursos:[],faltas:0},
 {nome:"Lucca",notas:[10,9.8,9.6],cursos:[{nomeDoCurso:"UX",dataMatricula:new Date}],faltas:0}];
@@ -26,52 +26,57 @@ function adicionarAluno(nome){
     console.log(`Aluno ${nome} adicionado.`)
 }
 
-function listarAlunos(){
+function listarAlunos() {
     let i = 0
     console.log('')
     alunosDaEscola.forEach( function(e) {
         console.log(`Aluno ${(i + 1)}`)
-        buscarAluno(e.nome)
+        exibirAluno(e)
         console.log('')
         i++
     })
 }
 
 function buscarAluno(nome){
-    let pos = alunosDaEscola.map(function(e) { return e.nome; }).indexOf(nome)
-    console.log('')
-    if (pos != -1){
-        console.log(`Nome: ${alunosDaEscola[pos].nome}`)
-        let i = 1
-        if (alunosDaEscola[pos].notas.length > 0) {
-            for (let nota in alunosDaEscola[pos].notas) {
-                console.log(`Nota ${i}: ${alunosDaEscola[pos].notas[nota]}`)
-                i++
-            }
-        }
-        else
-        {
-            console.log(`Aluno sem notas cadastradas.`)
-        }       
-        i = 1 
-        if (alunosDaEscola[pos].cursos.length > 0 ) {
-            for (let curso in alunosDaEscola[pos].cursos) {
-                console.log(`Curso ${i}:`)
-                console.log(`Nome: ${alunosDaEscola[pos].cursos[curso].nomeDoCurso}`)
-                console.log(`Data de matrícula: ${alunosDaEscola[pos].cursos[curso].dataMatricula}`)
-                i++
-            } 
-        }       
-        else 
-        {
-            console.log(`Aluno não inscrito em cursos.`)
-        }
-        console.log(`Número de faltas: ${alunosDaEscola[pos].faltas}`)
+    let aluno = alunosDaEscola[alunosDaEscola.map(function(aluno) { return aluno.nome; }).indexOf(nome)]
+    if (aluno != undefined) {
+        console.log(`Aluno ${nome} encontrado.`)
+        return aluno
     }
     else
     {
         console.log(`Nome não cadastrado.`)
     }
+}
+
+function exibirAluno(aluno){
+    console.log('')
+    console.log(`Nome: ${aluno.nome}`)
+    let i = 1
+    if (aluno.notas.length > 0) {
+        for (let nota in aluno.notas) {
+            console.log(`Nota ${i}: ${aluno.notas[nota]}`)
+            i++
+        }
+    }
+    else
+    {
+        console.log(`Aluno sem notas cadastradas.`)
+    }       
+    i = 1 
+    if (aluno.cursos.length > 0 ) {
+        for (let curso in aluno.cursos) {
+            console.log(`Curso ${i}:`)
+            console.log(`Nome: ${aluno.cursos[curso].nomeDoCurso}`)
+            console.log(`Data de matrícula: ${aluno.cursos[curso].dataMatricula}`)
+            i++
+        } 
+    }       
+    else 
+    {
+        console.log(`Aluno não inscrito em cursos.`)
+    }
+    console.log(`Número de faltas: ${aluno.faltas}`)
     console.log('')
 }
 
@@ -80,26 +85,24 @@ function matricularAluno(aluno, curso){
 
 }
 
-function aplicarFalta(nome){ // tentar com objeto aluno
-    let pos = alunosDaEscola.map(function(e) { return e.nome; }).indexOf(nome)
-    if (pos != -1){
-        alunosDaEscola[pos].faltas++
-        console.log(`Falta aplicada ao aluno ${alunosDaEscola[pos].nome}. Total de faltas: ${alunosDaEscola[pos].faltas}`)
-    }
-    else
-    {
-        console.log(`Nome não cadastrado.`)
-    }
+function aplicarFalta(aluno){
+    aluno.faltas++
+    console.log(`Falta aplicada ao aluno ${aluno.nome}. Total de faltas: ${aluno.faltas}`)
 }
     
-function aplicarNota(aluno){
-    console.log(`retorna nota aplicada.`)
-
+function aplicarNota(aluno, nota){ // função modificada para manter a declaração da nota a ser aplicada, fora deste escopo
+    aluno.notas.push(nota)
+    console.log(`Nota ${nota} aplicada ao aluno ${aluno.nome}.`)
 }
   
 function aprovarAluno(aluno){
-    console.log(`retorna condição do aluno.`)
-
+    if ((aluno.faltas <= 3) && ((aluno.notas.reduce(function(total, e) { return total + e }) / aluno.notas.length) >= 7)){
+        console.log(`Aluno aprovado!`)
+    }
+    else
+    {
+        console.log(`Aluno reprovado!`)
+    }
 }
 
 // interface com usuário
@@ -134,7 +137,7 @@ rl.question('Função a avaliar: ', (userInput) => {
             break
         case '2':
             console.log('Opção Listar alunos selecionada. Segue nossa turma:')
-            listarAlunos(userInput)
+            listarAlunos()
             rl.close()
             break
         case '3':
@@ -142,7 +145,7 @@ rl.question('Função a avaliar: ', (userInput) => {
             rl.prompt()
             rl.on('line', userInput => {
                 console.log('Retorno das informações do aluno:')
-                buscarAluno(userInput)
+                exibirAluno(buscarAluno(userInput))
                 rl.close()
             })
             break
@@ -155,19 +158,25 @@ rl.question('Função a avaliar: ', (userInput) => {
             rl.setPrompt('Opção Aplicar Falta a um aluno selecionada. Digite o nome do aluno: ')
             rl.prompt()
             rl.on('line', userInput => {
-                aplicarFalta(userInput)
+                aplicarFalta(buscarAluno(userInput))
                 rl.close()
             })
             break
         case '6':
             rl.setPrompt('Opção Aplicar Nota a um aluno selecionada. Digite o nome do aluno: ')
-            aplicarNota(userInput)
-            rl.close()
+            rl.prompt()
+            rl.on('line', userInput => {
+                aplicarNota(buscarAluno(userInput),7) // chamada da função alterada
+                rl.close()
+            })
             break
         case '7':
-            rl.setPrompt('Opção Aprovar um aluno selecionada.')
-            aprovarAluno(userInput)
-            rl.close()
+            rl.setPrompt('Opção Aprovar um aluno selecionada. Digite o nome do aluno: ')
+            rl.prompt()
+            rl.on('line', userInput => {
+                aprovarAluno(buscarAluno(userInput))
+                rl.close()
+            })
             break
         default:
             console.log('Opção inválida')
