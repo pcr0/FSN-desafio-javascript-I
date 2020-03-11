@@ -29,16 +29,16 @@ function adicionarAluno(nome){
 function listarAlunos() {
     let i = 0
     console.log('')
-    alunosDaEscola.forEach( function(e) {
+    alunosDaEscola.forEach( aluno => {
         console.log(`Aluno ${(i + 1)}`)
-        exibirAluno(e)
+        exibirAluno(aluno)
         console.log('')
         i++
     })
 }
 
 function buscarAluno(nome){
-    let aluno = alunosDaEscola[alunosDaEscola.map(function(aluno) { return aluno.nome; }).indexOf(nome)]
+    let aluno = alunosDaEscola[alunosDaEscola.map(aluno => aluno.nome ).indexOf(nome)]
     if (aluno != undefined) {
         console.log(`Aluno ${nome} encontrado.`)
         return aluno
@@ -50,58 +50,108 @@ function buscarAluno(nome){
 }
 
 function exibirAluno(aluno){
-    console.log('')
-    console.log(`Nome: ${aluno.nome}`)
-    let i = 1
-    if (aluno.notas.length > 0) {
-        for (let nota in aluno.notas) {
-            console.log(`Nota ${i}: ${aluno.notas[nota]}`)
-            i++
+    if (alunosDaEscola[alunosDaEscola.indexOf(aluno)] != undefined){
+        console.log('')
+        console.log(`Nome: ${aluno.nome}`)
+        let i = 1
+        if (aluno.notas.length > 0) {
+            console.log(`Notas:`)
+            aluno.notas.forEach(nota => {
+                console.log(`- Nota ${i}: ${nota}`)
+                i++
+            })
+        }
+        else
+        {
+            console.log(`Aluno sem notas cadastradas.`)
+        }       
+        i = 1 
+        if (aluno.cursos.length > 0 ) {
+            console.log(`Cursos:`)
+            aluno.cursos.forEach(curso => {
+                console.log(`- Curso ${i}:`)
+                console.log(`  - Nome: ${curso.nomeDoCurso}`)
+                console.log(`  - Data de matrícula: ${curso.dataMatricula}`)
+                i++
+            } )
+        }       
+        else 
+        {
+            console.log(`Aluno sem matriculas em cursos.`)
+        }
+        console.log(`Número de faltas: ${aluno.faltas}`)
+        console.log('')
+    }
+    else
+    {
+        console.log(`Aluno não cadastrado.`)
+    }
+}
+
+function matricularAluno(aluno, curso){
+    if (alunosDaEscola[alunosDaEscola.indexOf(aluno)] != undefined){
+        if (aluno.cursos.length > 0){
+            alunosDaEscola[alunosDaEscola.indexOf(aluno)].cursos.push(curso)
+            console.log(`Aluno ${alunosDaEscola[alunosDaEscola.indexOf(aluno)].nome} matriculado no curso ${curso.nomeDoCurso}.`)
+        }
+        else
+        {
+            console.log(`Aluno não matriculado em nenhum curso. Nota não foi aplicada.`)
         }
     }
     else
     {
-        console.log(`Aluno sem notas cadastradas.`)
-    }       
-    i = 1 
-    if (aluno.cursos.length > 0 ) {
-        for (let curso in aluno.cursos) {
-            console.log(`Curso ${i}:`)
-            console.log(`Nome: ${aluno.cursos[curso].nomeDoCurso}`)
-            console.log(`Data de matrícula: ${aluno.cursos[curso].dataMatricula}`)
-            i++
-        } 
-    }       
-    else 
-    {
-        console.log(`Aluno não inscrito em cursos.`)
+        console.log(`Aluno não cadastrado.`)
     }
-    console.log(`Número de faltas: ${aluno.faltas}`)
-    console.log('')
-}
-
-function matricularAluno(aluno, curso){
-    console.log(`retorna aluno matriculado.`)
-
 }
 
 function aplicarFalta(aluno){
-    aluno.faltas++
-    console.log(`Falta aplicada ao aluno ${aluno.nome}. Total de faltas: ${aluno.faltas}`)
-}
-    
-function aplicarNota(aluno, nota){ // função modificada para manter a declaração da nota a ser aplicada, fora deste escopo
-    aluno.notas.push(nota)
-    console.log(`Nota ${nota} aplicada ao aluno ${aluno.nome}.`)
-}
-  
-function aprovarAluno(aluno){
-    if ((aluno.faltas <= 3) && ((aluno.notas.reduce(function(total, e) { return total + e }) / aluno.notas.length) >= 7)){
-        console.log(`Aluno aprovado!`)
+    if (alunosDaEscola[alunosDaEscola.indexOf(aluno)] != undefined){
+        if (aluno.cursos.length > 0){
+            alunosDaEscola[alunosDaEscola.indexOf(aluno)].faltas++
+            console.log(`Falta aplicada ao aluno ${alunosDaEscola[alunosDaEscola.indexOf(aluno)].nome}. Total de faltas: ${alunosDaEscola[alunosDaEscola.indexOf(aluno)].faltas}`)
+        }
+        else
+        {
+            console.log(`Aluno não matriculado em nenhum curso. Falta não foi aplicada.`)
+        }
     }
     else
     {
-        console.log(`Aluno reprovado!`)
+        console.log(`Aluno não cadastrado.`)
+    }
+}
+    
+function aplicarNota(aluno, nota){ // função modificada para manter a declaração da nota a ser aplicada, fora deste escopo
+    if (alunosDaEscola[alunosDaEscola.indexOf(aluno)] != undefined){
+        if (aluno.cursos.length > 0){
+            alunosDaEscola[alunosDaEscola.indexOf(aluno)].notas.push(nota)
+            console.log(`Nota ${nota} aplicada ao aluno ${alunosDaEscola[alunosDaEscola.indexOf(aluno)].nome}.`)
+        }
+        else
+        {
+            console.log(`Aluno não matriculado em nenhum curso. Nota não foi aplicada.`)
+        }
+    }
+    else
+    {
+        console.log(`Aluno não cadastrado.`)
+    }
+}
+  
+function aprovarAluno(aluno){
+    if (alunosDaEscola[alunosDaEscola.indexOf(aluno)] != undefined){
+        if ((aluno.faltas <= 3) && ((aluno.notas.reduce(function(total, nota) { return total + nota }) / aluno.notas.length) >= 7) && (aluno.cursos.length > 0)){
+            console.log(`Aluno aprovado!`)
+        }
+        else
+        {
+            console.log(`Aluno reprovado!`)
+        }
+    }
+    else
+    {
+        console.log(`Aluno não cadastrado.`)
     }
 }
 
@@ -122,7 +172,9 @@ console.log('4 - Matricular um aluno')
 console.log('5 - Aplicar Falta um aluno')
 console.log('6 - Aplicar Nota um aluno')
 console.log('7 - Aprovar um aluno')
+console.log('')
 console.log('------------------------------------')
+console.log('')
 let op = ''
 rl.question('Função a avaliar: ', (userInput) => {
     op = userInput
@@ -151,7 +203,7 @@ rl.question('Função a avaliar: ', (userInput) => {
             break
         case '4':
             rl.setPrompt('Opção Matricular um aluno selecionada.')
-            matricularAluno(userInput)
+            matricularAluno(buscarAluno(userInput), {nomeDoCurso:"UX",dataMatricula:new Date})
             rl.close()
             break
         case '5':
